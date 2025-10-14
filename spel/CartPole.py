@@ -74,7 +74,7 @@ class Agent:
 
 # Training hyperparameters
 learning_rate = 0.5        # How fast to learn (higher = faster but less stable)
-n_episodes = 50000       # Number of hands to practice
+n_episodes = 10000       # Number of hands to practice
 start_epsilon = 1.0         # Start with 100% random actions
 epsilon_decay = start_epsilon / (n_episodes / 2)  # Reduce exploration over time
 final_epsilon = 0.1         # Always keep some exploration
@@ -103,6 +103,7 @@ env.close()
 env_test = gym.make("CartPole-v1", render_mode="human")
 
 def test_agent(agent: Agent,episodes=100):
+    agent.epsilon = 0
     for episode in range(episodes):
         obs = env_test.reset()[0]  # Reset the environment
         state1 = agent.discretize(obs)
@@ -111,7 +112,8 @@ def test_agent(agent: Agent,episodes=100):
 
         while not done:  # Visualize the agent's performance
             action = np.argmax(agent.q_values[state1])  # Use the trained policy
-            state, _, done, _, _ = env_test.step(action)  # Take the best action (based on learned Q-values)
+            state1, _, done, _, _ = env_test.step(action)
+            state1 = agent.discretize(state1)  # Take the best action (based on learned Q-values)
             steps += 1
         
         print(f"Episode {episode + 1}: Agent balanced for {steps} steps.")
